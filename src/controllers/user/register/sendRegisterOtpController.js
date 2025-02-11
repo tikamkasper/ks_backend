@@ -1,16 +1,14 @@
-const User = require("../../../models/user/userModel.js");
+const { User } = require("../../../models/user/userModel.js");
 const { ApiError } = require("../../../utils/ApiError.js");
 const { ApiResponse } = require("../../../utils/ApiResponse.js");
 const { asyncHandler } = require("../../../utils/asyncHandler.js");
 const { TWILIO_PHONE_NUMBER, EMAIL } = require("../../../config/index.js");
+const { REGISTER_OTP_STORE } = require("../../../helpers/otpStore.js");
 const {
   otpGenerator,
   twilioClient,
   nodemailerTransporter,
 } = require("../../../helpers/registerSignupHelper.js");
-
-//create otp store in memory
-const REGISTER_OTP_STORE = new Map();
 
 // Send register OTP controller
 const sendRegisterOtp = asyncHandler(async (req, res) => {
@@ -68,8 +66,8 @@ const sendRegisterOtp = asyncHandler(async (req, res) => {
       console.log("OTP sent to this email:", email_or_mobile);
     }
 
-    //set otpWithExpiration in OTP_STORE in memory
-    REGISTER_OTP_STORE.set("otpWithExpiration", {
+    // store OTP in memory (use email_or_mobile as key)
+    REGISTER_OTP_STORE.set(email_or_mobile, {
       otp,
       expiration: otpExpiration,
     });

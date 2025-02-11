@@ -1,4 +1,4 @@
-const User = require("../models/user/userModel.js");
+const { User } = require("../models/user/userModel.js");
 const twilio = require("twilio");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
@@ -24,10 +24,10 @@ exports.nodemailerTransporter = nodemailer.createTransport({
   },
 });
 
-// Generate OTP and otpExpiration
+// Generate OTP and expiration time
 exports.otpGenerator = () => {
   const otp = crypto.randomInt(100000, 999999).toString();
-  const otpExpiration = 5 * 60 * 1000; // OTP expires in 5 minutes
+  const otpExpiration = Date.now() + 5 * 60 * 1000; // Set absolute expiration time (5 minutes from now)
   return { otp, otpExpiration };
 };
 
