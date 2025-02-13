@@ -51,7 +51,7 @@ const sendRegisterOtp = asyncHandler(async (req, res) => {
         to: `+91${email_or_mobile}`,
         from: TWILIO_PHONE_NUMBER,
       });
-      console.log("OTP sent to this mobile:", email_or_mobile);
+      // console.log("OTP sent to this mobile:", email_or_mobile);
     }
     // If it's an email, send an email OTP using Nodemailer
     if (isEmail) {
@@ -72,7 +72,9 @@ const sendRegisterOtp = asyncHandler(async (req, res) => {
       expiration: otpExpiration,
     });
 
-    res.status(200).json(new ApiResponse(200, {}, "OTP sent successfully"));
+    res
+      .status(200)
+      .json(new ApiResponse(200, {}, `OTP sent to: ${email_or_mobile}`));
   } catch (error) {
     console.error(error);
     throw new ApiError(500, "Error sending OTP");

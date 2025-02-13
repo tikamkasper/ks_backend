@@ -13,7 +13,7 @@ const verifyRegisterOtp = asyncHandler(async (req, res) => {
   //send response OTP verified successfully
 
   //get otp and email_or_mobile from user --> req.body
-  const { email_or_mobile, otp } = req.body;
+  const { email_or_mobile, role, otp } = req.body;
 
   // Get OTP from the memory
   const storedOtpData = REGISTER_OTP_STORE.get(email_or_mobile);
@@ -37,7 +37,9 @@ const verifyRegisterOtp = asyncHandler(async (req, res) => {
   REGISTER_OTP_STORE.delete(email_or_mobile);
 
   //send response OTP verified successfully
-  res.status(200).json(new ApiResponse(200, {}, "OTP verified successfully"));
+  res
+    .status(200)
+    .json(new ApiResponse(200, { role }, "OTP verified successfully"));
 });
 
 module.exports = { verifyRegisterOtp };
