@@ -12,7 +12,7 @@ const {
 
 // Send register OTP controller
 const sendRegisterOtp = asyncHandler(async (req, res) => {
-  // get credentials from req.body
+  // get signupCredential from req.body
   // check email or mobile
   // Check if the user already exists based on email or mobile
   // create otp and otpExpiration

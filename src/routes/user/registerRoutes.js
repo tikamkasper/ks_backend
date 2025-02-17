@@ -12,8 +12,8 @@ const {
 
 const router = Router();
 
-router.route("/register/send/otp").post(sendRegisterOtp);
-router.route("/register/verify/otp").post(verifyRegisterOtp);
+router.route("/register/send_otp").post(sendRegisterOtp);
+router.route("/register/verify_otp").post(verifyRegisterOtp);
 router.route("/register").post(registerUser);
 
 module.exports = router;
