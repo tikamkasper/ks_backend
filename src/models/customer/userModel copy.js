@@ -5,25 +5,25 @@ const jwt = require("jsonwebtoken");
 const { Schema, model } = mongoose;
 const { REFRESH_TOKEN_SECRET, REFRESH_TOKEN_EXPIRY } = require("../../config");
 
-// const nameSchema = new Schema({
-//   first_name: {
-//     type: String,
-//     trim: true,
-//     required: [true, "First name is required !"],
-//   },
-//   last_name: {
-//     type: String,
-//     trim: true,
-//     required: [true, "Last name is required !"],
-//   },
-// });
+const nameSchema = new Schema({
+  first_name: {
+    type: String,
+    trim: true,
+    required: [true, "First name is required !"],
+  },
+  last_name: {
+    type: String,
+    trim: true,
+    required: [true, "Last name is required !"],
+  },
+});
 
 const userSchema = new Schema(
   {
-    // name: {
-    //   type: nameSchema,
-    //   required: true,
-    // },
+    name: {
+      type: nameSchema,
+      required: true,
+    },
     username: {
       type: String,
       trim: true,

@@ -20,16 +20,11 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 //routes import
-
-const registerRoutes = require("./routes/user/registerRoutes.js");
-// const userRoutes = require("./routes/userRoutes.js");
-// const authRoutes = require("./routes/authRoute.js");
+const customerRoutes = require("./routes/customer/customerRoutes.js");
 
 //routes declaration
-// app.use("/api/v1/users", userRoutes);
-// app.use("/", authRoutes);
-app.use("/api/v1/users/", registerRoutes);
+app.use("/api/v1/customer/", customerRoutes);
 
-// http://localhost:8000/api/v1/users/register
+// http://localhost:8000/api/v1/customer/signup/send_otp
 
 module.exports = { app };
