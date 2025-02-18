@@ -1,4 +1,4 @@
-const { User } = require("../../../models/user/userModel.js");
+const { Customer } = require("../../../models/user/customerModel.js");
 const { ApiError } = require("../../../utils/ApiError.js");
 const { ApiResponse } = require("../../../utils/ApiResponse.js");
 const { asyncHandler } = require("../../../utils/asyncHandler.js");
@@ -12,7 +12,7 @@ const {
 
 // Send register OTP controller
 const sendRegisterOtp = asyncHandler(async (req, res) => {
-  // get signupCredential from req.body
+  // get signupCredentials from req.body
   // check email or mobile
   // Check if the user already exists based on email or mobile
   // create otp and otpExpiration
@@ -33,11 +33,14 @@ const sendRegisterOtp = asyncHandler(async (req, res) => {
   }
 
   // Check if the user already exists based on email or mobile
-  const userExists = await User.findOne({
+  const customerExists = await Customer.findOne({
     $or: [{ email: email_or_mobile }, { mobile: email_or_mobile }],
   });
-  if (userExists) {
-    throw new ApiError(400, "User already exists with this email or mobile");
+  if (customerExists) {
+    throw new ApiError(
+      409,
+      "customer already exists with this email or mobile, please login."
+    );
   }
 
   // create otp and otpExpiration
@@ -51,8 +54,8 @@ const sendRegisterOtp = asyncHandler(async (req, res) => {
         to: `+91${email_or_mobile}`,
         from: TWILIO_PHONE_NUMBER,
       });
-      // console.log("OTP sent to this mobile:", email_or_mobile);
     }
+
     // If it's an email, send an email OTP using Nodemailer
     if (isEmail) {
       const mailOptions = {
