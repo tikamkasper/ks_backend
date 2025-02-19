@@ -17,8 +17,8 @@ const verifyOtp = asyncHandler(async (req, res) => {
   // create new customer in db
   // check customer create or not
   // generate refreshToken
-  // return response and set refresh token in cookie
-  // res.cookie("rt",refreshToken,{httpOnly:true,secure:true})
+  // return response and set refresh token in cookie => res.cookie("rt",refreshToken,{httpOnly:true,secure:true})
+  /*__________________________________________________________________________*/
 
   //get otp and email_or_mobile from customer --> req.body
   const { email_or_mobile, otp } = req.body;
@@ -87,32 +87,26 @@ const verifyOtp = asyncHandler(async (req, res) => {
   const customer = await newCustomer.save();
 
   // check customer create or not
-  const createdCustomer = await Customer.findById(customer._id);
+  const createdCustomer = await Customer.findById(customer._id).select("-__v");
   if (!createdCustomer) {
     throw new ApiError(
       500,
-      "Something went wrong while registering the customer."
+      "Something went wrong while signup/registering the customer."
     );
   }
 
-  // generate refreshToken
+  // generate refreshToken and save in db
   const refreshToken = generateRefreshToken(customer._id);
 
-  const cookieOptions = {
-    httpOnly: true,
-    secure: true,
-  };
-
   // return response and set refresh token in cookie
-  // res.cookie("rt",refreshToken,{httpOnly:true,secure:true})
-  res
+  return res
     .status(201)
-    .cookie("rt", refreshToken, cookieOptions)
+    .cookie("rt", refreshToken, { httpOnly: true, secure: true })
     .json(
       new ApiResponse(
         200,
         createdCustomer,
-        "OTP verified and customer signup Successfully."
+        "OTP verified and customer signup and login Successfully."
       )
     );
 });

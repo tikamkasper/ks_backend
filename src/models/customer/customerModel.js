@@ -34,13 +34,21 @@ const customerSchema = new mongoose.Schema(
         message: "invalid mobile number",
       },
     },
-    profile: {},
-    addresses: [],
-
     refresh_token: {
       type: String,
       select: false, // Exclude refresh_token from query results by default
     },
+    profile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Profile", // Reference to Profile collection
+      default: null,
+    },
+    addresses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Addresses", // Reference to Addresses collection
+      },
+    ],
   },
   { timestamps: true }
 );

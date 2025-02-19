@@ -11,11 +11,11 @@ const { sendSMS } = require("../../helpers/twilio.js");
 // Controller => send OTP signup/registration
 const sendOtp = asyncHandler(async (req, res) => {
   // get signupCredentials from req.body
-  // check email or mobile
+  // check email or mobile and Validate email or mobile format
   // Check if the user already exists based on email or mobile
   // create otp and otpExpiration
   // if user credentials is a mobile number, send OTP via Twilio SMS
-  // f user credentials is an email, send OTP using Nodemailer emiail
+  // if user credentials is an email, send OTP using Nodemailer email
   // store OTP and expiration in memory (use email_or_mobile as key)
   // return response
   /*__________________________________________________________________________*/
@@ -23,11 +23,12 @@ const sendOtp = asyncHandler(async (req, res) => {
   // get credentials from req.body
   const { email_or_mobile } = req.body;
 
-  // check email or mobile
-  const isEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-    email_or_mobile
-  );
-  const isMobile = /^[0-9]{10}$/.test(email_or_mobile);
+  // check email or mobile and validate email or mobile format
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const mobileRegex = /^[0-9]{10}$/;
+
+  const isEmail = emailRegex.test(email_or_mobile);
+  const isMobile = mobileRegex.test(email_or_mobile);
 
   if (!isEmail && !isMobile) {
     throw new ApiError(400, "Invalid email or mobile number");
@@ -40,7 +41,7 @@ const sendOtp = asyncHandler(async (req, res) => {
   if (customerExists) {
     throw new ApiError(
       409,
-      "customer already exists with this email or mobile, please login."
+      `customer already exists with ${email_or_mobile}, please login.`
     );
   }
 
@@ -48,33 +49,38 @@ const sendOtp = asyncHandler(async (req, res) => {
   const { otp, expiration } = otpGenerator();
 
   try {
-    // If costomer entered an email, send OTP using Nodemailer email
+    // Send OTP via email
     if (isEmail) {
-      await sendEmail({
+      const emailResponse = await sendEmail({
         email: email_or_mobile,
         subject: "E_SHOP Signup/Registration OTP.",
-        text: `This is your OTP: ${otp}.\n It will expire in 5 minutes.`,
+        text: `E_SHOP Signup/Registration OTP.\nThis is your OTP: ${otp}\nIt will expire in 5 minutes.`,
       });
+      // console.log("📩 Email Response:", emailResponse);
     }
-    // If costomer entered a mobile number ,send OTP via Twilio SMS
+    // Send OTP via SMS
     if (isMobile) {
-      await sendSMS({
+      const smsResponse = await sendSMS({
         mobile: email_or_mobile,
-        body: `E_SHOP Signup/Registration OTP.
-        This is your OTP: ${otp}
-        It will expire in 5 minutes.`,
+        body: `E_SHOP Signup/Registration OTP.\nThis is your OTP: ${otp}\nIt will expire in 5 minutes.`,
       });
+      // console.log("📲 SMS Response:", smsResponse);
     }
 
     // store OTP and expiration in memory (use email_or_mobile as key)
     REGISTER_OTP_STORE.set(email_or_mobile, { otp, expiration });
 
-    res
+    return res
       .status(200)
-      .json(new ApiResponse(200, {}, `OTP sent to: ${email_or_mobile}`));
+      .json(
+        new ApiResponse(200, {}, `OTP sent successfully to: ${email_or_mobile}`)
+      );
   } catch (error) {
-    console.error(error);
-    throw new ApiError(500, "Error sending OTP");
+    console.error(
+      `❌ OTP sending failed for ${email_or_mobile}:`,
+      error.message
+    );
+    throw new ApiError(500, "Failed to send OTP. Please try again.");
   }
 });
 
