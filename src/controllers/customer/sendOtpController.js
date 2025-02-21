@@ -1,7 +1,7 @@
 const { Customer } = require("../../models/customer/customerModel.js");
 const { REGISTER_OTP_STORE } = require("../../helpers/otpStore.js");
-const { ApiError } = require("../../utils/ApiError.js");
-const { ApiResponse } = require("../../utils/ApiResponse.js");
+const { CustomError } = require("../../utils/CustomError.js");
+const { Response } = require("../../utils/Response.js");
 const { asyncHandler } = require("../../utils/asyncHandler.js");
 
 const { otpGenerator } = require("../../helpers/otpGenerator.js");
@@ -9,7 +9,7 @@ const { sendEmail } = require("../../helpers/nodemailer.js");
 const { sendSMS } = require("../../helpers/twilio.js");
 
 // Controller => send OTP signup/registration
-const sendOtp = asyncHandler(async (req, res) => {
+const sendOtp = asyncHandler(async (req, res, next) => {
   // get signupCredentials from req.body
   // check email or mobile and Validate email or mobile format
   // Check if the user already exists based on email or mobile
@@ -31,7 +31,7 @@ const sendOtp = asyncHandler(async (req, res) => {
   const isMobile = mobileRegex.test(email_or_mobile);
 
   if (!isEmail && !isMobile) {
-    throw new ApiError(400, "Invalid email or mobile number");
+    return next(new CustomError(400, "Invalid email or mobile number"));
   }
 
   // Check if the customer already exists based on email or mobile
@@ -39,9 +39,11 @@ const sendOtp = asyncHandler(async (req, res) => {
     $or: [{ email: email_or_mobile }, { mobile: email_or_mobile }],
   });
   if (customerExists) {
-    throw new ApiError(
-      409,
-      `customer already exists with ${email_or_mobile}, please login.`
+    return next(
+      new CustomError(
+        409,
+        `Customer already exists with ${email_or_mobile}. Please go to login.`
+      )
     );
   }
 
@@ -51,36 +53,37 @@ const sendOtp = asyncHandler(async (req, res) => {
   try {
     // Send OTP via email
     if (isEmail) {
-      const emailResponse = await sendEmail({
+      await sendEmail({
         email: email_or_mobile,
         subject: "E_SHOP Signup/Registration OTP.",
         text: `E_SHOP Signup/Registration OTP.\nThis is your OTP: ${otp}\nIt will expire in 5 minutes.`,
       });
-      // console.log("📩 Email Response:", emailResponse);
     }
     // Send OTP via SMS
     if (isMobile) {
-      const smsResponse = await sendSMS({
+      await sendSMS({
         mobile: email_or_mobile,
         body: `E_SHOP Signup/Registration OTP.\nThis is your OTP: ${otp}\nIt will expire in 5 minutes.`,
       });
-      // console.log("📲 SMS Response:", smsResponse);
     }
 
     // store OTP and expiration in memory (use email_or_mobile as key)
     REGISTER_OTP_STORE.set(email_or_mobile, { otp, expiration });
 
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(200, {}, `OTP sent successfully to: ${email_or_mobile}`)
-      );
-  } catch (error) {
-    console.error(
-      `❌ OTP sending failed for ${email_or_mobile}:`,
-      error.message
+    // return response with success message
+    return Response.success(
+      res,
+      200,
+      `OTP sent successfully to: ${email_or_mobile}`,
+      {}
     );
-    throw new ApiError(500, "Failed to send OTP. Please try again.");
+  } catch (error) {
+    return next(
+      new CustomError(
+        500,
+        `OTP sending failed to: ${email_or_mobile}.Please try again.`
+      )
+    );
   }
 });
 

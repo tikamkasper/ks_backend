@@ -18,14 +18,9 @@ const sendEmail = async ({ email, subject, text }) => {
       subject,
       text,
     };
-
     const info = await transporter.sendMail(mailOptions);
-    console.log(
-      `✅ Email sent successfully to ${email}. Message ID: ${info.messageId}`
-    );
-    return info;
   } catch (error) {
-    console.error(`❌ Failed to send email to ${email}:`, error.message);
+    return;
     throw new Error("Error sending OTP via email. Please try again.");
   }
 };

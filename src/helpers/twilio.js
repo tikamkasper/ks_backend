@@ -17,15 +17,7 @@ const sendSMS = async ({ mobile, body }) => {
       to: `+91${mobile}`,
       from: TWILIO_PHONE_NUMBER,
     });
-    console.log(
-      `✅ SMS sent successfully to: ${mobile}. Message SID: ${message.sid}`
-    );
-    return message;
   } catch (error) {
-    console.error(
-      `❌ Failed to send OTP via SMS to: ${mobile}:`,
-      error.message
-    );
     throw new Error("Error sending OTP via SMS. Please try again.");
   }
 };

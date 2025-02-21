@@ -19,16 +19,21 @@ class Response {
     res,
     statusCode = 500,
     message = statusCode === 500
-      ? "Internal Server Error. Please try again later."
-      : "An error occurred while processing your request.",
+      ? "Oops! Something went wrong on our end. Please try again later."
+      : "We encountered an issue while processing your request. Please try again.",
+    originalErrorMessage = "",
+    errorStack = "",
     errors = []
   ) {
     return res.status(statusCode).json({
       statusCode,
       success: false,
       message,
-      ...(NODE_ENV === "development" && originalErrorMessage),
-      ...(NODE_ENV === "development" && errors),
+      ...(NODE_ENV === "development" && {
+        originalErrorMessage,
+        errorStack,
+        errors,
+      }),
     });
   }
 }

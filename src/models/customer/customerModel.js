@@ -7,7 +7,7 @@ const customerSchema = new mongoose.Schema(
     role: {
       type: String,
       default: "customer",
-      required: [true, "user role is required !"],
+      required: [true, "User role is required !"],
     },
     email: {
       type: String,
@@ -31,7 +31,7 @@ const customerSchema = new mongoose.Schema(
         validator: function (value) {
           return !value || /^[0-9]{10}$/.test(value);
         },
-        message: "invalid mobile number",
+        message: "Invalid mobile number",
       },
     },
     refresh_token: {
