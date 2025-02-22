@@ -27,19 +27,19 @@ const verifyOtp = asyncHandler(async (req, res, next) => {
   const storedOtpData = REGISTER_OTP_STORE.get(email_or_mobile);
 
   if (!storedOtpData) {
-    return next(new CustomError(400, "OTP not found or expired"));
+    return next(new CustomError("OTP not found or expired", 400));
   }
 
   // Check OTP expiration
   if (Date.now() > storedOtpData.expiration) {
     REGISTER_OTP_STORE.delete(email_or_mobile); // Delete expired OTP
-    return next(new CustomError(400, "OTP has expired"));
+    return next(new CustomError("OTP has expired", 400));
   }
 
   // Check OTP match
   if (storedOtpData.otp !== otp) {
     return next(
-      new CustomError(400, "Invalid OTP. Please try again and enter valid OTP")
+      new CustomError("Invalid OTP. Please try again and enter valid OTP", 400)
     );
   }
 
@@ -53,7 +53,7 @@ const verifyOtp = asyncHandler(async (req, res, next) => {
   const isMobile = /^[0-9]{10}$/.test(email_or_mobile);
 
   if (!isEmail && !isMobile) {
-    return next(new CustomError(400, "Invalid email or mobile number"));
+    return next(new CustomError("Invalid email or mobile number", 400));
   }
   // Check if the customer already exists based on email or mobile
   const customerExists = await Customer.findOne({
@@ -62,8 +62,8 @@ const verifyOtp = asyncHandler(async (req, res, next) => {
   if (customerExists) {
     return next(
       new CustomError(
-        409,
-        `Customer already exists with ${email_or_mobile}. Please go to login.`
+        `Customer already exists with ${email_or_mobile}. Please go to login.`,
+        409
       )
     );
   }
@@ -92,8 +92,8 @@ const verifyOtp = asyncHandler(async (req, res, next) => {
   if (!createdCustomer) {
     return next(
       new CustomError(
-        500,
-        "Something went wrong while signup/registering the customer."
+        "Something went wrong while signup/registering the customer.",
+        500
       )
     );
   }

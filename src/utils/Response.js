@@ -1,12 +1,12 @@
 const { NODE_ENV } = require("../config");
 
 class Response {
-  static success(
+  static success({
     res,
     statusCode = 200,
     message = "Request successful.",
-    data = {}
-  ) {
+    data = {},
+  } = {}) {
     return res.status(statusCode).json({
       statusCode,
       success: true,
@@ -15,22 +15,22 @@ class Response {
     });
   }
 
-  static error(
+  static error({
     res,
     statusCode = 500,
     message = statusCode === 500
       ? "Oops! Something went wrong on our end. Please try again later."
       : "We encountered an issue while processing your request. Please try again.",
-    originalErrorMessage = "",
+    devErrorMessage = "",
     errorStack = "",
-    errors = []
-  ) {
+    errors = [],
+  } = {}) {
     return res.status(statusCode).json({
       statusCode,
       success: false,
       message,
       ...(NODE_ENV === "development" && {
-        originalErrorMessage,
+        devErrorMessage,
         errorStack,
         errors,
       }),
