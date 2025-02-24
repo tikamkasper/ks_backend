@@ -12,7 +12,7 @@ const { sendSMS } = require("../../helpers/twilio.js");
 const sendOtp = asyncHandler(async (req, res, next) => {
   // get signupCredentials from req.body
   // check if email or mobile is provided or not
-  // check credentialType
+  // check if email or mobile is valid or not
   // Check if the user already exists based on email or mobile
   // create otp and otpExpiration
   // if user credentials is a mobile number, send OTP via Twilio SMS
@@ -33,7 +33,7 @@ const sendOtp = asyncHandler(async (req, res, next) => {
     );
   }
 
-  // check credentialType
+  // check if email or mobile is valid or not
   const mobileRegex = /^[0-9]{10}$/;
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -43,8 +43,11 @@ const sendOtp = asyncHandler(async (req, res, next) => {
   if (!isEmail && !isMobile) {
     return next(
       new CustomError({
-        userErrorMessage: `Invalid ${isMobile ? "mobile number" : "email"}: ${email_or_mobile}`,
-        status: 400,
+        userMessage: "Invalid email or mobile.",
+        devMessage: /^\d+$/.test(email_or_mobile)
+          ? `Invalid mobile number: ${email_or_mobile}`
+          : `Invalid email: ${email_or_mobile}.`,
+        statusCode: 400,
       })
     );
   }
@@ -55,10 +58,13 @@ const sendOtp = asyncHandler(async (req, res, next) => {
   });
   if (customerExists) {
     return next(
-      new CustomError(
-        `Customer already exists with ${email_or_mobile}. Please go to login.`,
-        409
-      )
+      new CustomError({
+        userMessage: `This ${isEmail ? "email" : "mobile number"} is already registered. Please login.`,
+        devMessage: `Customer with ${isEmail ? "email" : "mobile number"}: ${
+          email_or_mobile
+        } already exists.`,
+        statusCode: 409,
+      })
     );
   }
 
@@ -86,18 +92,19 @@ const sendOtp = asyncHandler(async (req, res, next) => {
     REGISTER_OTP_STORE.set(email_or_mobile, { otp, expiration });
 
     // return response with success message
-    return Response.success(
+    return Response.success({
       res,
-      200,
-      `OTP sent successfully to: ${email_or_mobile}`,
-      {}
-    );
+      statusCode: 200,
+      message: `OTP sent successfully to: ${email_or_mobile}`,
+      data: {},
+    });
   } catch (error) {
     return next(
-      new CustomError(
-        `OTP sending failed to: ${email_or_mobile}.Please try again.`,
-        500
-      )
+      new CustomError({
+        userMessage: "OTP sending failed. Please try again later.",
+        devMessage: `Error sending OTP: ${error.message}`,
+        statusCode: 500,
+      })
     );
   }
 });

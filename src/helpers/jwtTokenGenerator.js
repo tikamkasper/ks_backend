@@ -1,5 +1,5 @@
 const { Customer } = require("../models/customer/customerModel.js");
-const { ApiError } = require("../utils/ApiError.js");
+const { CustomError } = require("../utils/CustomError.js");
 
 //Generate Refresh Token
 const generateRefreshToken = async (customerId) => {
@@ -11,10 +11,11 @@ const generateRefreshToken = async (customerId) => {
     await customer.save({ validateBeforeSave: false });
     return refreshToken;
   } catch (error) {
-    throw new ApiError(
-      500,
-      "something went wrong while generating referesh token"
-    );
+    throw new CustomError({
+      userMessage: "Internal Server Error.",
+      devMessage: error.message, // Something went wrong while generating referesh token
+      statusCode: 500,
+    });
   }
 };
 

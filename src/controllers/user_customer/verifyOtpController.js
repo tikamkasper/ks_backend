@@ -27,19 +27,35 @@ const verifyOtp = asyncHandler(async (req, res, next) => {
   const storedOtpData = REGISTER_OTP_STORE.get(email_or_mobile);
 
   if (!storedOtpData) {
-    return next(new CustomError("OTP not found or expired", 400));
+    return next(
+      new CustomError({
+        userMessage: "OTP is invalid or expired.",
+        devMessage: "OTP is not found in memory store.",
+        statusCode: 400,
+      })
+    );
   }
 
   // Check OTP expiration
   if (Date.now() > storedOtpData.expiration) {
     REGISTER_OTP_STORE.delete(email_or_mobile); // Delete expired OTP
-    return next(new CustomError("OTP has expired", 400));
+    return next(
+      new CustomError({
+        userMessage: "OTP is invalid or expired.",
+        devMessage: " OTP is expired.",
+        statusCode: 400,
+      })
+    );
   }
 
   // Check OTP match
   if (storedOtpData.otp !== otp) {
     return next(
-      new CustomError("Invalid OTP. Please try again and enter valid OTP", 400)
+      new CustomError({
+        userMessage: "OTP is invalid. Please try again.",
+        devMessage: "Customer OTP did not match to memory OTP.",
+        statusCode: 400,
+      })
     );
   }
 
@@ -53,18 +69,31 @@ const verifyOtp = asyncHandler(async (req, res, next) => {
   const isMobile = /^[0-9]{10}$/.test(email_or_mobile);
 
   if (!isEmail && !isMobile) {
-    return next(new CustomError("Invalid email or mobile number", 400));
+    return next(
+      new CustomError({
+        userMessage: "Invalid email or mobile.",
+        devMessage: /^\d+$/.test(email_or_mobile)
+          ? `Invalid mobile number: ${email_or_mobile}`
+          : `Invalid email: ${email_or_mobile}.`,
+        statusCode: 400,
+      })
+    );
   }
+
   // Check if the customer already exists based on email or mobile
   const customerExists = await Customer.findOne({
     $or: [{ email: email_or_mobile }, { mobile: email_or_mobile }],
   });
+
   if (customerExists) {
     return next(
-      new CustomError(
-        `Customer already exists with ${email_or_mobile}. Please go to login.`,
-        409
-      )
+      new CustomError({
+        userMessage: `This ${isEmail ? "email" : "mobile number"} is already registered. Please login.`,
+        devMessage: `Customer with ${isEmail ? "email" : "mobile number"}: ${
+          email_or_mobile
+        } already exists.`,
+        statusCode: 409,
+      })
     );
   }
 
@@ -91,10 +120,11 @@ const verifyOtp = asyncHandler(async (req, res, next) => {
   const createdCustomer = await Customer.findById(customer._id).select("-__v");
   if (!createdCustomer) {
     return next(
-      new CustomError(
-        "Something went wrong while signup/registering the customer.",
-        500
-      )
+      new CustomError({
+        userMessage: "Something went wrong while signup/registering process.",
+        devMessage: "Customer is not create/save in mongodb.",
+        statusCode: 500,
+      })
     );
   }
 
@@ -103,13 +133,14 @@ const verifyOtp = asyncHandler(async (req, res, next) => {
 
   // set refresh token in cookie
   res.cookie("rt", refreshToken, { httpOnly: true, secure: true });
+
   // return response with customer data
-  return Response.success(
+  return Response.success({
     res,
-    201,
-    "OTP verified and Customer signup with login Successfully.",
-    createdCustomer
-  );
+    statusCode: 201,
+    message: "OTP verified and Customer signup/login Successfully.",
+    createdCustomer,
+  });
 });
 
 module.exports = { verifyOtp };

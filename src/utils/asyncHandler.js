@@ -3,7 +3,7 @@ const asyncHandler = (asyncFunction) => {
     Promise.resolve(asyncFunction(req, res, next)).catch((err) => next(err));
   };
 };
-export { asyncHandler };
+module.exports = { asyncHandler };
 
 // const asyncHandler = (asyncFunction) => {
 //   return (req, res, next) => {

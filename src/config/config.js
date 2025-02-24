@@ -1,14 +1,24 @@
 const _config = {
-  port: process.env.PORT,
-  db_name: process.env.DB_NAME,
-  mogodb_uri: process.env.MONGODB_URI,
-  cors_origin: process.env.CORS_ORIGIN,
-  access_token_secret: process.env.ACCESS_TOKEN_SECRET,
-  access_token_expiry: process.env.ACCESS_TOKEN_EXPIRY,
-  refresh_token_secret: process.env.REFRESH_TOKEN_SECRET,
-  refresh_token_expiry: process.env.REFRESH_TOKEN_EXPIRY,
-  cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
+  PORT: process.env.PORT,
+  DB_NAME: process.env.DB_NAME,
+  MONGODB_URI: process.env.MONGODB_URI,
+  CORS_ORIGIN: process.env.CORS_ORIGIN,
+
+  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+  REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY,
+
+  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
+  TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
+  TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,
+
+  NODE_ENV: process.env.NODE_ENV,
+
+  EMAIL: process.env.EMAIL,
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
+
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 };
 
 const config = {

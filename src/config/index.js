@@ -12,6 +12,7 @@ module.exports = {
   TWILIO_PHONE_NUMBER,
 
   NODE_ENV,
+
   EMAIL,
   EMAIL_PASSWORD,
 

@@ -18,21 +18,19 @@ class Response {
   static error({
     res,
     statusCode = 500,
-    message = statusCode === 500
-      ? "Oops! Something went wrong on our end. Please try again later."
-      : "We encountered an issue while processing your request. Please try again.",
-    devErrorMessage = "",
-    errorStack = "",
-    errors = [],
+    message = "Internal Server Error. Please try again later.",
+    devMessage = "No error message provided for dev.",
+    errorStack = "No error stack provided for dev.",
+    error = { message: "No error provided for dev." },
   } = {}) {
     return res.status(statusCode).json({
       statusCode,
       success: false,
       message,
       ...(NODE_ENV === "development" && {
-        devErrorMessage,
+        devMessage,
         errorStack,
-        errors,
+        error,
       }),
     });
   }
